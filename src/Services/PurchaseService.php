@@ -18,7 +18,7 @@ final class PurchaseService implements PurchaseServiceInterface
     ) {
     }
 
-    public function already(Customer $customer, BasketDtoInterface $basketDto, bool $gifts = false): array
+    public function already(Customer $customer, BasketDtoInterface $basketDto, bool $gifts = false, int $order_id = null): array
     {
         $status = $gifts
             ? [Transfer::STATUS_PAID, Transfer::STATUS_GIFT]
@@ -41,15 +41,20 @@ final class PurchaseService implements PurchaseServiceInterface
              * it's a crutch. It is necessary to come up with a more correct implementation of the internal and external
              * interface for "purchases".
              */
-            $arrays[] = (clone $query)
+            $data = (clone $query)
                 ->with(['deposit', 'withdraw.wallet'])
                 ->where('to_id', $wallet->getKey())
-                ->whereIn('status', $status)
+                ->whereIn('status', $status);
+                
+            if($data){
+                $data->where('order_id', $order_id);
+            }
+
+            $arrays[] = $data
                 ->orderBy('id', 'desc')
                 ->limit($productCounts[$wallet->uuid])
                 ->get()
-                ->all()
-            ;
+                ->all();
         }
 
         return array_merge(...$arrays);
