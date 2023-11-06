@@ -184,6 +184,10 @@ trait CartPay
         }
     }
 
+    public function refundOrder(CartInterface $cart, int $order_id = null, bool $force = false, bool $gifts = false){
+        return $this->refundCart($cart, $force, $gifts, $order_id);
+    }
+    
     /**
      * @throws BalanceIsEmpty
      * @throws InsufficientFunds
@@ -193,12 +197,12 @@ trait CartPay
      * @throws ModelNotFoundException
      * @throws ExceptionInterface
      */
-    public function refundCart(CartInterface $cart, bool $force = false, bool $gifts = false): bool
+    public function refundCart(CartInterface $cart, bool $force = false, bool $gifts = false, int $order_id = null): bool
     {
-        return app(AtomicServiceInterface::class)->block($this, function () use ($cart, $force, $gifts) {
+        return app(AtomicServiceInterface::class)->block($this, function () use ($cart, $force, $gifts, $order_id) {
             $basketDto = $cart->getBasketDto();
             app(EagerLoaderServiceInterface::class)->loadWalletsByBasket($this, $basketDto);
-            $transfers = app(PurchaseServiceInterface::class)->already($this, $basketDto, $gifts);
+            $transfers = app(PurchaseServiceInterface::class)->already($this, $basketDto, $gifts, $order_id);
             if (count($transfers) !== $basketDto->total()) {
                 throw new ModelNotFoundException(
                     "No query results for model [{$this->transfers()
