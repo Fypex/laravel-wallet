@@ -46,7 +46,7 @@ final class PurchaseService implements PurchaseServiceInterface
                 ->where('to_id', $wallet->getKey())
                 ->whereIn('status', $status);
                 
-            if($data){
+            if($order_id){
                 $data->where('order_id', $order_id);
             }
 
