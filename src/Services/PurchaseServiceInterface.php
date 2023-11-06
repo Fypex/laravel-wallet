@@ -16,5 +16,5 @@ interface PurchaseServiceInterface
     /**
      * @return Transfer[]
      */
-    public function already(Customer $customer, BasketDtoInterface $basketDto, bool $gifts = false): array;
+    public function already(Customer $customer, BasketDtoInterface $basketDto, bool $gifts = false, int $order_id = null): array;
 }
